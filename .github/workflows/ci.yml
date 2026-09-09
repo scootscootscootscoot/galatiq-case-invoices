@@ -1,0 +1,71 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -e ".[dev]"
+
+      - name: Install OCR
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr tesseract-ocr-eng fonts-dejavu-core
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Format
+        run: ruff format --check .
+
+      - name: Type-check
+        run: mypy acme_ap
+
+      - name: Test
+        run: pytest -q
+
+      # The gate. Runs on the deterministic offline provider, so it needs no
+      # secret and a failure is a real regression rather than model variance.
+      # Exits non-zero on any wrong decision or any false pay.
+      - name: Evaluate against the golden set
+        run: python -m acme_ap.eval
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t acme-ap:ci .
+      - name: Process an invoice in the container
+        run: docker run --rm acme-ap:ci python main.py --invoice_path=data/invoices/invoice_1001.txt
+
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install browser test dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -e '.[dev,demo]'
+          .venv/bin/python -m playwright install --with-deps chromium
+          sudo apt-get update && sudo apt-get install -y ffmpeg tesseract-ocr tesseract-ocr-eng fonts-dejavu-core
+      - name: Exercise and record the browser workflow
+        run: .venv/bin/python scripts/record_demo.py --fast --output artifacts/browser/demo.mp4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: artifacts/browser/

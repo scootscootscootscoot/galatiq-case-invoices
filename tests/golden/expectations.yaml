@@ -1,0 +1,203 @@
+# Golden expectations for the sample invoices.
+#
+# Derived by reading each document against the seed inventory
+# (WidgetA 15, WidgetB 10, GadgetX 5, FakeItem 0) and deciding what a competent
+# accounts-payable clerk should conclude. This file is the specification; the
+# pipeline is judged against it, not the other way round.
+#
+# Each entry may assert:
+#   outcome        - PAID | REJECTED | REVIEW_REQUIRED (required)
+#   invoice_number - expected identifier after normalisation
+#   vendor         - expected vendor name
+#   total          - expected invoice total
+#   quantities     - aggregated quantity per canonical item
+#   must_flag      - finding codes that must appear
+#   must_not_flag  - finding codes that must not appear
+#   note           - why this invoice is in the set
+
+invoice_1001.txt:
+  outcome: PAID
+  invoice_number: INV-1001
+  vendor: Widgets Inc.
+  total: 5000.00
+  quantities: {WidgetA: 10, WidgetB: 5}
+  must_not_flag: [STOCK_EXCEEDED, UNKNOWN_ITEM, ARITHMETIC_MISMATCH]
+  note: Clean baseline. Everything in stock, arithmetic reconciles.
+
+invoice_1002.txt:
+  outcome: REJECTED
+  invoice_number: INV-1002
+  vendor: Gadgets Co.
+  total: 15000.00
+  quantities: {GadgetX: 20}
+  must_flag: [STOCK_EXCEEDED, HIGH_VALUE]
+  note: >
+    Field labels are misspelled throughout (INVOCE, Vndr, Itms, Amt). Orders 20
+    GadgetX against stock of 5.
+
+invoice_1003.txt:
+  outcome: REJECTED
+  invoice_number: INV-1003
+  vendor: Fraudster LLC
+  total: 100000.00
+  quantities: {FakeItem: 100}
+  must_flag: [ZERO_STOCK, URGENCY_PRESSURE, UNPARSEABLE_DATE]
+  note: >
+    Fraud shape: a product with no stock, a six-figure total, a due date of
+    "yesterday", and pressure language demanding an immediate wire transfer.
+
+invoice_1004.json:
+  outcome: PAID
+  invoice_number: INV-1004
+  vendor: Precision Parts Ltd.
+  total: 1890.00
+  quantities: {WidgetA: 3, WidgetB: 2}
+  note: Clean structured invoice.
+
+invoice_1004_revised.json:
+  outcome: PAID
+  invoice_number: INV-1004
+  total: 5940.00
+  quantities: {WidgetA: 3, WidgetB: 2, GadgetX: 5}
+  must_flag: [STOCK_AT_LIMIT]
+  note: >
+    Same invoice number as 1004 with an added line. Paid when processed alone;
+    the ordered-scenario test covers what happens when 1004 was already paid.
+
+invoice_1005.json:
+  outcome: REJECTED
+  invoice_number: INV-1005
+  total: 15225.00
+  quantities: {WidgetA: 14, GadgetX: 8, WidgetB: 10}
+  must_flag: [STOCK_EXCEEDED, HIGH_VALUE]
+  note: GadgetX 8 against stock of 5, above the scrutiny threshold.
+
+invoice_1006.csv:
+  outcome: REVIEW_REQUIRED
+  invoice_number: INV-1006
+  vendor: Acme Industrial Supplies
+  total: 2750.00
+  quantities: {WidgetA: 5, WidgetB: 3}
+  must_flag: [EXTRACTION_UNCERTAIN]
+  note: Key/value CSV with no currency code or symbol. Policy 2026.09.2 requires verification instead of silently assuming USD.
+
+invoice_1007.csv:
+  outcome: REJECTED
+  invoice_number: INV-1007
+  total: 15525.00
+  quantities: {WidgetA: 20, WidgetB: 15, GadgetX: 3}
+  must_flag: [STOCK_EXCEEDED, ARITHMETIC_MISMATCH]
+  note: >
+    Tabular CSV dialect. Two items exceed stock, and the stated total is 110.00
+    below subtotal plus tax.
+
+invoice_1008.txt:
+  outcome: REJECTED
+  invoice_number: INV-1008
+  vendor: NoProd Industries
+  total: 9900.00
+  must_flag: [UNKNOWN_ITEM]
+  note: >
+    Arrives as an email body. Both products are absent from the catalog and the
+    total sits just under the 10,000 scrutiny threshold.
+
+invoice_1009.json:
+  outcome: REJECTED
+  invoice_number: INV-1009
+  total: -250.00
+  must_flag: [NEGATIVE_QUANTITY, NEGATIVE_TOTAL, MISSING_VENDOR]
+  note: >
+    Data integrity failure: empty vendor, null due date, a quantity of -5 and a
+    negative total. The extraction loop cannot repair it and says so.
+
+invoice_1010.txt:
+  outcome: PAID
+  invoice_number: INV-1010
+  vendor: Consolidated Materials Group
+  total: 7185.00
+  quantities: {WidgetA: 12, WidgetB: 4, GadgetX: 2}
+  must_not_flag: [STOCK_EXCEEDED, ARITHMETIC_MISMATCH]
+  note: >
+    WidgetA appears on two lines, 8 plus a 4-unit rush order. Aggregation must
+    reach 12 before the stock check. Shipping is a separate line in the total.
+
+invoice_1011.txt:
+  outcome: PAID
+  invoice_number: INV-1011
+  vendor: Summit Manufacturing Co.
+  total: 3000.00
+  quantities: {WidgetA: 6, WidgetB: 3}
+  note: Clean text invoice, twin of the PDF below.
+
+invoice_1011.pdf:
+  outcome: PAID
+  invoice_number: INV-1011
+  total: 3000.00
+  quantities: {WidgetA: 6, WidgetB: 3}
+  note: Same invoice as a PDF. Must agree with the text version exactly.
+
+invoice_1012.txt:
+  outcome: PAID
+  invoice_number: INV-1012
+  total: 9975.00
+  quantities: {WidgetA: 12, WidgetB: 7, GadgetX: 4}
+  must_not_flag: [ARITHMETIC_MISMATCH, UNKNOWN_ITEM]
+  note: OCR damage in the date and a line amount; item names carry stray spaces.
+
+invoice_1012.pdf:
+  outcome: PAID
+  invoice_number: INV-1012
+  total: 9975.00
+  quantities: {WidgetA: 12, WidgetB: 7, GadgetX: 4}
+  must_not_flag: [ARITHMETIC_MISMATCH, UNKNOWN_ITEM]
+  note: >
+    The showcase. "26-Jan-2O26" and "$3,500.O0" contain letter O where digits
+    belong; once repaired the arithmetic reconciles to 9,975.00 exactly.
+
+invoice_1013.json:
+  outcome: REJECTED
+  invoice_number: INV-1013
+  total: 22562.80
+  quantities: {WidgetA: 22, WidgetB: 18, GadgetX: 9}
+  must_flag: [STOCK_EXCEEDED, ARITHMETIC_MISMATCH, HIGH_VALUE]
+  note: >
+    Eight line items spread across three products, each exceeding stock only
+    once aggregated. Subtotal plus tax is 22,512.80 against a stated total of
+    22,562.80 - fifty dollars with no stated cause.
+
+invoice_1013.pdf:
+  outcome: REJECTED
+  invoice_number: INV-1013
+  total: 22562.80
+  quantities: {WidgetA: 22, WidgetB: 18, GadgetX: 9}
+  must_flag: [STOCK_EXCEEDED, ARITHMETIC_MISMATCH]
+  note: >
+    PDF twin. Two fields share one line and PDF extraction collapses the column
+    spacing, so the vendor must not swallow the due date.
+
+invoice_1014.xml:
+  outcome: PAID
+  invoice_number: INV-1014
+  vendor: TechParts International
+  total: 4125.00
+  quantities: {WidgetA: 4, WidgetB: 6}
+  must_flag: [NON_BASE_CURRENCY]
+  note: Priced in EUR. Payable, but the currency mismatch must be surfaced.
+
+invoice_1015.csv:
+  outcome: REVIEW_REQUIRED
+  invoice_number: INV-1015
+  vendor: Reliable Components Inc.
+  total: 6500.00
+  quantities: {WidgetA: 10, WidgetB: 5, GadgetX: 2}
+  note: Clean tabular CSV.
+
+invoice_1016.json:
+  outcome: REJECTED
+  invoice_number: INV-1016
+  vendor: Widgets Inc.
+  total: 3233.00
+  must_flag: [UNKNOWN_ITEM]
+  note: >
+    WidgetC is not in the catalog. It differs from WidgetB by one character,
+    which is exactly the case fuzzy matching would get wrong.

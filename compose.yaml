@@ -1,0 +1,21 @@
+services:
+  acme-ap:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      # Passed through from the host when set; the stub provider runs otherwise.
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      XAI_MODEL: ${XAI_MODEL:-grok-4}
+      LOG_FORMAT: json
+      DATABASE_PATH: /app/data-store/acme.db
+      UPLOAD_DIR: /app/data-store/uploads
+    volumes:
+      # Persist the system of record across container restarts.
+      - acme-data:/app/data-store
+    env_file:
+      - path: .env
+        required: false
+
+volumes:
+  acme-data:

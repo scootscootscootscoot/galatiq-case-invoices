@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acme AP — invoice processing</title>
+<link rel="stylesheet" href="/static/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🧾</text></svg>">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <h1>Acme AP</h1>
+    <span class="sub">invoice assurance workspace</span>
+  </div>
+  <div class="spacer"></div>
+  <span class="stat">runs <b id="stat-runs">—</b></span>
+  <span class="stat paid">paid <b id="stat-paid">—</b></span>
+  <span class="stat held">held <b id="stat-held">—</b></span>
+  <span class="badge" id="provider">connecting…</span>
+  <span class="badge">simulated payments</span>
+</header>
+
+<nav>
+  <button id="tab-process" aria-selected="true">process</button>
+  <button id="tab-history" aria-selected="false">history</button>
+  <button id="tab-review" aria-selected="false">review queue <span id="review-count">0</span></button>
+  <button id="tab-inventory" aria-selected="false">inventory</button>
+</nav>
+
+<main>
+  <div id="notice" role="status" aria-live="polite" class="hidden"></div>
+  <div id="review-alert" role="status" class="alert hidden"></div>
+
+  <!-- ------------------------------------------------------------ process -->
+  <section id="view-process" class="grid">
+
+    <div class="panel">
+      <h2>invoices <span id="file-count"></span></h2>
+      <label class="upload" for="upload-file">Upload an invoice <span>PDF · TXT · JSON · CSV · XML / up to 10 MB</span></label>
+      <input id="upload-file" type="file" accept=".pdf,.txt,.text,.json,.csv,.xml" class="hidden">
+      <div class="body flush scroll" id="files"></div>
+    </div>
+
+    <div class="panel">
+      <h2>
+        agent trace
+        <span id="trace-status"></span>
+      </h2>
+      <div class="body flush scroll" id="trace">
+        <p class="empty" style="padding:12px 13px">Select an invoice to process it.</p>
+      </div>
+    </div>
+
+    <div>
+      <div class="panel" style="margin-bottom:16px">
+        <h2>result</h2>
+        <div class="body" id="result">
+          <p class="empty">No run yet.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px">
+        <h2>source confidence</h2>
+        <div class="body" id="quality"><p class="empty">Evidence appears after extraction.</p></div>
+      </div>
+
+      <div class="panel">
+        <h2>findings</h2>
+        <div class="body flush" id="findings">
+          <p class="empty" style="padding:12px 13px">No run yet.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <section id="view-review" class="hidden">
+    <div class="panel">
+      <h2>manual review <button class="ghost" id="refresh-review">refresh</button></h2>
+      <div class="body"><p>Verify uncertain fields against the source. Corrections run through the full business policy before any simulated payment.</p></div>
+      <div class="body flush" id="reviews"></div>
+    </div>
+  </section>
+
+  <section id="review-workspace" class="panel hidden">
+    <h2>verify extraction <span id="review-run-label"></span></h2>
+    <div class="review-grid">
+      <div class="body">
+        <a id="source-link" target="_blank" rel="noopener">Open original document ↗</a>
+        <p class="help">Text captured at processing time. For scanned PDFs, compare with the original page.</p>
+        <pre id="source-text"></pre>
+      </div>
+      <form id="review-form" class="body">
+        <div id="review-fields" class="form-grid"></div>
+        <h3>Line items</h3>
+        <div class="table-scroll"><table><thead><tr><th>item</th><th>quantity</th><th>unit price</th><th>amount</th><th></th></tr></thead><tbody id="review-lines"></tbody></table></div>
+        <button type="button" class="ghost" id="add-line">+ Add line</button>
+        <label>Reviewer name <input id="reviewer-name" required minlength="2" maxlength="120" autocomplete="name"></label>
+        <label>Reason for the correction or dismissal <textarea id="review-note" required minlength="5" maxlength="2000" rows="2"></textarea></label>
+        <label class="check"><input id="source-verified" type="checkbox"> I checked every payment field and every line against the original document.</label>
+        <p class="help">This records your verification. Stock, arithmetic, duplicate, and approval rules still apply.</p>
+        <div class="actions"><button id="submit-review" type="submit">Verify &amp; reprocess</button><button id="dismiss-review" type="button" class="ghost">Close alert without payment</button></div>
+        <p id="review-message" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------------------ history -->
+  <section id="view-history" class="hidden">
+    <div class="panel">
+      <h2>run history <button class="ghost" id="refresh-history">refresh</button></h2>
+      <div class="body flush scroll" id="history"></div>
+    </div>
+  </section>
+
+  <!-- ---------------------------------------------------------- inventory -->
+  <section id="view-inventory" class="hidden">
+    <div class="panel">
+      <h2>inventory catalog</h2>
+      <div class="body flush" id="inventory"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

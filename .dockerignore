@@ -1,0 +1,14 @@
+.git
+.venv
+.env
+*.db
+*.db-*
+__pycache__
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.complexipy_cache
+.coverage
+artifacts
+docs
+data/invoices/uploads

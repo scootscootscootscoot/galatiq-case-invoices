@@ -1,0 +1,50 @@
+[
+  {
+    "seconds": 0.5,
+    "chapter": "Acme AP \u00b7 trust the evidence before paying"
+  },
+  {
+    "seconds": 7.3,
+    "chapter": "1 \u00b7 A readable PDF clears the checks"
+  },
+  {
+    "seconds": 13.5,
+    "chapter": "Every confidence score has evidence"
+  },
+  {
+    "seconds": 20.4,
+    "chapter": "2 \u00b7 Damaged characters stay inspectable"
+  },
+  {
+    "seconds": 27.3,
+    "chapter": "3 \u00b7 Missing currency means stop and ask a human"
+  },
+  {
+    "seconds": 34.4,
+    "chapter": "A queue that survives a page reload"
+  },
+  {
+    "seconds": 39.7,
+    "chapter": "4 \u00b7 Human verification is recorded, not hidden"
+  },
+  {
+    "seconds": 46.1,
+    "chapter": "A new run rechecks the corrected invoice"
+  },
+  {
+    "seconds": 53.9,
+    "chapter": "5 \u00b7 Business errors still block payment"
+  },
+  {
+    "seconds": 62.6,
+    "chapter": "6 \u00b7 A revised invoice cannot be paid twice"
+  },
+  {
+    "seconds": 70.2,
+    "chapter": "7 \u00b7 An actual image-only PDF"
+  },
+  {
+    "seconds": 77.3,
+    "chapter": "An inspectable history from upload to outcome"
+  }
+]

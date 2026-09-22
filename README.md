@@ -81,7 +81,7 @@ extractions, dropped/repeated lines, invalid numbers, malformed and image-only
 PDFs, concurrent payments, competing reviewers, upload limits, preserved source
 snapshots, and correction workflows. The evaluation fails on field errors as
 well as wrong decisions. The sample results do **not** measure accuracy on
-unseen real-world invoices. See [verification evidence](docs/VERIFICATION.md).
+unseen real-world invoices.
 
 ## Record the browser demo
 

@@ -161,7 +161,7 @@ exercise upload → alert → correction → revalidation over HTTP. The recorde
 browser test checks the same flow in Chromium, verifies expected outcomes,
 checks for JavaScript errors, and opens the review queue at a mobile viewport.
 
-See [VERIFICATION.md](VERIFICATION.md) for the final results and commands.
+Run `make check` for the full suite, the golden evaluation, and the exact commands.
 The original 150 tests were retained, with expectations changed where the new
 policy intentionally changed behavior.
 

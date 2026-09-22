@@ -95,7 +95,10 @@ def _resolve_invoice(raw: str) -> Path:
         candidate = settings.invoice_dir / candidate.name
     resolved = candidate.resolve()
     allowed = settings.invoice_dir.resolve()
-    if not (resolved.is_relative_to(allowed) or resolved.is_relative_to(settings.resolved_upload_dir.resolve())):
+    if not (
+        resolved.is_relative_to(allowed)
+        or resolved.is_relative_to(settings.resolved_upload_dir.resolve())
+    ):
         raise HTTPException(status_code=400, detail="invoice must live in the invoice directory")
     if not resolved.is_file():
         raise HTTPException(status_code=404, detail=f"no such invoice: {resolved.name}")
